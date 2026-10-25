@@ -108,8 +108,8 @@ final class RebuildProgressWindow {
 
     func show(game name: String?, phase current: RebuildPhase) {
         message.stringValue = name.map {
-            String(localized: "NotProton is rebuilding the prefix for \($0).")
-        } ?? String(localized: "NotProton is rebuilding this game's prefix.")
+            String(localized: "NotNotProton is rebuilding the prefix for \($0).")
+        } ?? String(localized: "NotNotProton is rebuilding this game's prefix.")
         phase.stringValue = switch current {
         case .settingUp: String(localized: "Rebuilding…")
         case .copying: String(localized: "Copying your files…")

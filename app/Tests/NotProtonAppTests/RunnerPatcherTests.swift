@@ -142,6 +142,87 @@ struct RunnerPatcherTests {
         #expect(try Data(contentsOf: Clean.copy(of: file)) == Data(contentsOf: file))
     }
 
+    // CrossOver's loader is hardened and signed by CodeWeavers, which is what makes dyld
+    // ignore DYLD_*. Gcenx's WineHQ builds are neither, so they need nothing added.
+    private static func makeLoader(
+        in root: URL, hardened: Bool, entitlements: [String] = []
+    ) throws -> URL {
+        let fm = FileManager.default
+        let loader = root.appending(path: "lib/wine/x86_64-unix/wine")
+        try fm.createDirectory(
+            at: loader.deletingLastPathComponent(), withIntermediateDirectories: true)
+
+        let source = root.appending(path: "loader.c")
+        try Data("int main(void) { return 0; }\n".utf8).write(to: source)
+        let built = try Shell.run("/usr/bin/cc", [
+            "-x", "c", "-o", loader.path(percentEncoded: false), source.path(percentEncoded: false),
+        ])
+        try #require(built.status == 0)
+
+        var arguments = ["-f", "-s", "-"]
+        if hardened { arguments += ["--options", "runtime"] }
+        if !entitlements.isEmpty {
+            let plist = root.appending(path: "entitlements.plist")
+            let body = entitlements.sorted().map { "<key>\($0)</key><true/>" }.joined()
+            let head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" "
+                + "\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
+            try Data((head + "<plist version=\"1.0\"><dict>\(body)</dict></plist>\n").utf8)
+                .write(to: plist)
+            arguments += ["--entitlements", plist.path(percentEncoded: false)]
+        }
+        arguments.append(loader.path(percentEncoded: false))
+
+        let signed = try Shell.run("/usr/bin/codesign", arguments)
+        try #require(signed.status == 0)
+        return loader
+    }
+
+    // Re-signing a WineHQ loader would add a hardened runtime it never shipped with, and
+    // the entitlement it would gain buys nothing: dyld is already honouring DYLD_*.
+    @Test("A WineHQ loader with no entitlements and no hardened runtime is left alone")
+    func adhocLoaderIsLeftAlone() throws {
+        let root = try scratchDirectory("adhoc-loader")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let loader = try Self.makeLoader(in: root, hardened: false)
+
+        #expect(!RunnerPatcher.isHardened(loader))
+        let before = try Digest.sha256(of: loader)
+
+        #expect(try RunnerPatcher.grantLoaderEntitlement(root: root).isEmpty)
+        #expect(try Digest.sha256(of: loader) == before)
+    }
+
+    // Nothing can be added to an entitlements blob that is not there, so a hardened loader
+    // without one stays an error rather than being guessed at.
+    @Test("A hardened loader carrying no entitlements is still refused")
+    func hardenedLoaderWithoutEntitlementsIsRefused() throws {
+        let root = try scratchDirectory("hardened-empty")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let loader = try Self.makeLoader(in: root, hardened: true)
+
+        #expect(RunnerPatcher.isHardened(loader))
+        #expect(throws: StepFailure.self) { try RunnerPatcher.grantLoaderEntitlement(root: root) }
+    }
+
+    // The CrossOver path: the loader is already signed and hardened, so the dyld
+    // entitlement is added beside whatever CodeWeavers put there.
+    @Test("A hardened loader keeps its entitlements and gains the dyld one")
+    func hardenedLoaderGainsTheDyldEntitlement() throws {
+        let root = try scratchDirectory("hardened-signed")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let loader = try Self.makeLoader(
+            in: root, hardened: true, entitlements: ["com.apple.security.cs.allow-jit"])
+
+        #expect(try RunnerPatcher.grantLoaderEntitlement(root: root) == ["x86_64-unix/wine"])
+
+        let granted = try Shell.run("/usr/bin/codesign", [
+            "-d", "--entitlements", ":-", loader.path(percentEncoded: false),
+        ]).stdout
+        #expect(granted.contains("com.apple.security.cs.allow-dyld-environment-variables"))
+        #expect(granted.contains("com.apple.security.cs.allow-jit"))
+    }
+
     @Test("Loader discovery finds both the bare and the bundled layout")
     func loaderDiscoveryCoversBothLayouts() throws {
         let fm = FileManager.default

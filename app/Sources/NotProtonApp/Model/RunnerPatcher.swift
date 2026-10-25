@@ -83,7 +83,7 @@ enum RunnerPatcher {
                 if !signatureIsValid(signingTarget(for: loader)) {
                     wrong.append(String(localized: "\(name(of: loader)) has a broken signature"))
                 }
-            } else if granted?.contains(dyldEntitlement) != true {
+            } else if granted?.contains(dyldEntitlement) != true, isHardened(loader) {
                 wrong.append(String(localized: "\(name(of: loader)) is missing the dyld entitlement"))
             }
         }
@@ -126,7 +126,7 @@ enum RunnerPatcher {
             guard FileManager.default.fileExists(atPath: source.path(percentEncoded: false)) else {
                 throw StepFailure(
                     step: step,
-                    detail: String(localized: "\(builtin.arch)/\(builtin.name) is not in the bridge. Install NotProton first.")
+                    detail: String(localized: "\(builtin.arch)/\(builtin.name) is not in the bridge. Install NotNotProton first.")
                 )
             }
 
@@ -140,7 +140,7 @@ enum RunnerPatcher {
         return installed
     }
 
-    private static func grantLoaderEntitlement(root: URL) throws -> [String] {
+    static func grantLoaderEntitlement(root: URL) throws -> [String] {
         var signed: [String] = []
 
         for loader in unixLoaders(in: root) {
@@ -148,6 +148,8 @@ enum RunnerPatcher {
             if existing?.contains(restrictedEntitlement) == true { continue }
             if existing?.contains(dyldEntitlement) == true,
                signatureIsValid(signingTarget(for: loader)) { continue }
+
+            guard isHardened(loader) else { continue }
 
             guard let existing, !existing.isEmpty else {
                 throw StepFailure(
@@ -242,6 +244,22 @@ enum RunnerPatcher {
     }
 
     static let restrictedEntitlement = "com.apple.developer.cross-architecture-support"
+
+    // A hardened runtime is what makes dyld ignore DYLD_*, and so what makes the dyld
+    // entitlement worth adding. CrossOver's loader has one; Gcenx's WineHQ builds do not.
+    static func isHardened(_ target: URL) -> Bool {
+        guard let result = try? Shell.run(
+            "/usr/bin/codesign", ["-d", "--verbose=2", target.path(percentEncoded: false)]
+        ) else { return false }
+        // codesign reports "flags=0x10002(adhoc,runtime)", and the parenthesised list is the
+        // part that says whether the binary is hardened.
+        let text = result.stderr + result.stdout
+        guard let line = text.split(separator: "\n").first(where: { $0.contains("flags=0x") }),
+            let open = line.firstIndex(of: "("),
+            let close = line.lastIndex(of: ")"), open < close
+        else { return false }
+        return line[line.index(after: open)..<close].split(separator: ",").contains("runtime")
+    }
 
     private static func signatureIsValid(_ target: URL) -> Bool {
         guard let result = try? Shell.run(

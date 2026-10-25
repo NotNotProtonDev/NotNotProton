@@ -85,6 +85,340 @@ enum NtdllPatcher {
                 imageBase: 0x7bc0_0000
             ),
         ],
+        "winehq-11.15": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-11.15",
+                payloadSHA256: "d394a6b7f4c55e2bb8b99aeb51cd4555527f8e10fa49339e95a8156486c5e2e5",
+                caveRVA: 0xb3000,
+                payloadRVA: 0xb3000,
+                hooks: [
+                    NtdllHook(rva: 0x3512c, stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 0x1000,
+                cavePad: 0x00,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000,
+                placement: .section
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-11.15",
+                payloadSHA256: "527431a3a74e9dff7bc3582277ddfa7b44bcac6fba285c028fd2c94fd9202418",
+                caveRVA: 0x6a075,
+                payloadRVA: 0x6a080,
+                hooks: [
+                    NtdllHook(rva: 0x2edcd, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 3979,
+                cavePad: 0xcc,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000
+            ),
+        ],
+        "winehq-staging-11.15": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-staging-11.15",
+                payloadSHA256: "0f5386d7bb8ac65ff85b44d3a53c5f086e06c4b3c52e3d73cf1cb95fe3ead761",
+                caveRVA: 0x79275,
+                payloadRVA: 0x79280,
+                hooks: [
+                    NtdllHook(rva: 0x3556c,
+                              stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 3467,
+                cavePad: 0xcc,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-staging-11.15",
+                payloadSHA256: "cadd35afe34a07a9a767b14c0a2f753a4d40945c89ced33f79ddd6e7f7a8aaba",
+                caveRVA: 0x6a3e5,
+                payloadRVA: 0x6a3f0,
+                hooks: [
+                    NtdllHook(rva: 0x2f11d, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 3099,
+                cavePad: 0xcc,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000
+            ),
+        ],
+        "winehq-11.18": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-11.18",
+                payloadSHA256: "c386176cea07c889e1016170bbe7e4e7678207e1775c6df36c827ca8d370dc83",
+                caveRVA: 0x79c85,
+                payloadRVA: 0x79c90,
+                hooks: [
+                    NtdllHook(rva: 0x351bc,
+                              stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 891,
+                cavePad: 0xcc,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-11.18",
+                payloadSHA256: "ba5499c6cf6957a10294e2b7e3b164f33fffd178ff3755f6efd11cedaf7543d1",
+                caveRVA: 0xa1000,
+                payloadRVA: 0xa1000,
+                hooks: [
+                    NtdllHook(rva: 0x2ee3d, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 4096,
+                cavePad: 0x00,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000,
+                placement: .section
+            ),
+        ],
+        "winehq-staging-11.18": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-staging-11.18",
+                payloadSHA256: "6b0de31560b3a2c6acd90f48ce0cafbe419424d25675560ff0127886686d644f",
+                caveRVA: 0x7a095,
+                payloadRVA: 0x7a0a0,
+                hooks: [
+                    NtdllHook(rva: 0x355cc,
+                              stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 3947,
+                cavePad: 0xcc,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-staging-11.18",
+                payloadSHA256: "d67c2cd6c3410ae219a1a2c2f0cd60384456a8424fafcd154ace4c1c712384a5",
+                caveRVA: 0xa2000,
+                payloadRVA: 0xa2000,
+                hooks: [
+                    NtdllHook(rva: 0x2f15d, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 4096,
+                cavePad: 0x00,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000,
+                placement: .section
+            ),
+        ],
+        "wine-cx-26.3.0": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-wine-cx-26.3.0",
+                payloadSHA256: "c89d7813becf9ceb9bee7c8a8a2c785e085c0734d9351fb81eb640d9ee3753ca",
+                caveRVA: 0x7a020,
+                payloadRVA: 0x7a020,
+                hooks: [
+                    NtdllHook(
+                        rva: 0x48453,
+                        stolen: [0x48, 0x83, 0xbc, 0x24, 0xf0, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 4064,
+                cavePad: 0x00,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-wine-cx-26.3.0",
+                payloadSHA256: "ec2c2cf90b3be91bc3863f8451cb54cac7cdae05197b3ba9d0d556d5ae1d6d4d",
+                caveRVA: 0xba000,
+                payloadRVA: 0xba000,
+                hooks: [
+                    NtdllHook(rva: 0x45370, stolen: [0xf6, 0x45, 0x10, 0x01, 0x75, 0x26]),
+                ],
+                caveSize: 0x1000,
+                cavePad: 0x00,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000,
+                placement: .section
+            ),
+        ],
+        "winehq-11.17": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-11.17",
+                payloadSHA256: "44b2ab33c7507442390f1584b3d4835f98ee356aeed5851fe140c2f73c4dead9",
+                caveRVA: 0xb3000,
+                payloadRVA: 0xb3000,
+                hooks: [
+                    NtdllHook(rva: 0x35174, stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 0x1000,
+                cavePad: 0x00,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000,
+                placement: .section
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-11.17",
+                payloadSHA256: "538c5c8030c9d111cd4993eea4782de50aac1fb0622c8e67c2b6bcec3864396b",
+                caveRVA: 0x6b0f5,
+                payloadRVA: 0x6b100,
+                hooks: [
+                    NtdllHook(rva: 0x2eeed, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 3851,
+                cavePad: 0xcc,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000
+            ),
+        ],
+        "winehq-staging-11.17": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-staging-11.17",
+                payloadSHA256: "428f889860e5b33e6a95e83ad444197c59de8a12d985478e13f4b8da48dd344e",
+                caveRVA: 0x7a2a5,
+                payloadRVA: 0x7a2b0,
+                hooks: [
+                    NtdllHook(rva: 0x35584,
+                              stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 3419,
+                cavePad: 0xcc,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-staging-11.17",
+                payloadSHA256: "45cab7c93f07264cb0c58e7d224d134795ab85564456683a9a3297e7c2c7c4a4",
+                caveRVA: 0x6b425,
+                payloadRVA: 0x6b430,
+                hooks: [
+                    NtdllHook(rva: 0x2f21d, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 3035,
+                cavePad: 0xcc,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000
+            ),
+        ],
+        "winehq-11.16": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-11.16",
+                payloadSHA256: "df954ed2c84cbfa14f98b3f9a7aa921ecc5cd78eba2929980b5760f3693fa185",
+                caveRVA: 0xb3000,
+                payloadRVA: 0xb3000,
+                hooks: [
+                    NtdllHook(rva: 0x3516c, stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 0x1000,
+                cavePad: 0x00,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000,
+                placement: .section
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-11.16",
+                payloadSHA256: "24bea7807fd38ec1e837262db8846edf6f30987fea487ea0325550cf981ac5be",
+                caveRVA: 0x6a0a5,
+                payloadRVA: 0x6a0b0,
+                hooks: [
+                    NtdllHook(rva: 0x2edfd, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 3931,
+                cavePad: 0xcc,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000
+            ),
+        ],
+        "winehq-staging-11.16": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-staging-11.16",
+                payloadSHA256: "9ff6d5b0f45b58708590dc514dd7fb044e61a1931720a0e48600e6fcf85cda31",
+                caveRVA: 0x792a5,
+                payloadRVA: 0x792b0,
+                hooks: [
+                    NtdllHook(rva: 0x355ac,
+                              stolen: [0x48, 0x8b, 0x85, 0x90, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 3419,
+                cavePad: 0xcc,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-staging-11.16",
+                payloadSHA256: "1e2c30f77a0a8f66f3d94c6e76437f2b284efd315a629289595459c7b925975b",
+                caveRVA: 0x6a415,
+                payloadRVA: 0x6a420,
+                hooks: [
+                    NtdllHook(rva: 0x2f14d, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 3051,
+                cavePad: 0xcc,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000
+            ),
+        ],
+        "winehq-staging-11.9": [
+            NtdllPatch(
+                arch: .x86_64Windows,
+                payloadResource: "detour2-winehq-staging-11.9",
+                payloadSHA256: "d06e83a4313c5b5f6d958739690469e179f532f0c409929e999bceafb36535b5",
+                caveRVA: 0x70c65,
+                payloadRVA: 0x70c70,
+                hooks: [
+                    NtdllHook(rva: 0x35252,
+                              stolen: [0x48, 0x8b, 0x85, 0x80, 0x00, 0x00, 0x00]),
+                ],
+                caveSize: 923,
+                cavePad: 0xcc,
+                machine: 0x8664,
+                magic: 0x20b,
+                imageBase: 0x1_7000_0000
+            ),
+            NtdllPatch(
+                arch: .i386Windows,
+                payloadResource: "detour32-winehq-staging-11.9",
+                payloadSHA256: "ece2e138952f431ab885bcc2e58b01ff6f24166b2b9c6d6b0f3e81164ea8c75f",
+                caveRVA: 0x64365,
+                payloadRVA: 0x64370,
+                hooks: [
+                    NtdllHook(rva: 0x2ef40, stolen: [0x8b, 0x45, 0x14, 0xa8, 0x02]),
+                ],
+                caveSize: 3227,
+                cavePad: 0xcc,
+                machine: 0x14c,
+                magic: 0x10b,
+                imageBase: 0x7bc0_0000
+            ),
+        ],
         "26.3.0.39832": [
             NtdllPatch(
                 arch: .x86_64Windows,

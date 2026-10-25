@@ -17,14 +17,13 @@ env:
 jobs:
   build:
     name: full app build
-    runs-on: xcode-27
+    runs-on: [self-hosted, macOS]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - name: Record the toolchain
         run: |
-          sudo xcode-select -s /Applications/Xcode_27.0.app
           xcodebuild -version
           swift --version
           echo "macOS SDK $(xcrun --sdk macosx --show-sdk-version)"
@@ -42,7 +41,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/dobby
-          key: dobby-xcode-27-${{ env.DOBBY_COMMIT }}-${{ runner.arch }}
+          key: dobby-macos-26-${{ env.DOBBY_COMMIT }}-${{ runner.arch }}
 
       - name: Build Dobby
         if: steps.dobby-cache.outputs.cache-hit != 'true'
@@ -56,7 +55,7 @@ jobs:
             scratch/wine
             scratch/wine-build-dual
             scratch/wine-build-arm64
-          key: wine-xcode-27-${{ hashFiles('bridge/setup-wine-tree.sh', 'bridge/register-components.diff') }}
+          key: wine-macos-26-${{ hashFiles('bridge/setup-wine-tree.sh', 'bridge/register-components.diff') }}
 
       - name: Restore Proton tarball cache
         uses: actions/cache@v4
@@ -84,7 +83,7 @@ jobs:
             scratch/wine
             scratch/wine-build-dual
             scratch/wine-build-arm64
-          key: wine-xcode-27-${{ hashFiles('bridge/setup-wine-tree.sh', 'bridge/register-components.diff') }}
+          key: wine-macos-26-${{ hashFiles('bridge/setup-wine-tree.sh', 'bridge/register-components.diff') }}
 
       - name: Install font tools
         run: |
@@ -143,10 +142,10 @@ jobs:
       - name: Package the app bundle
         run: |
           mkdir -p out/artifact
-          ditto -c -k --keepParent out/NotProton.app out/artifact/NotProton.zip
+          ditto -c -k --keepParent out/NotNotProton.app out/artifact/NotNotProton.zip
 
       - name: Upload the app bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NotProton
+          name: NotNotProton
           path: out/artifact

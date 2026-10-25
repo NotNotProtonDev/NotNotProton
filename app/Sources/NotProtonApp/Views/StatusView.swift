@@ -160,9 +160,11 @@ struct StatusRow: View {
 
 struct StatusView: View {
     @Environment(SystemStatus.self) private var status
+    @State private var wine = WineBuilds()
+    @State private var layers = GraphicsBackends()
 
     private static let updateBlockPrompt =
-        String(localized: "Steam client updates may break NotProton. If you don't want to wait for NotProton to be updated to be compatible with future Steam versions at the cost of not getting updates to the Steam client, you can stop the Steam client from updating itself.")
+        String(localized: "Steam client updates may break NotNotProton. If you don't want to wait for NotNotProton to be updated to be compatible with future Steam versions at the cost of not getting updates to the Steam client, you can stop the Steam client from updating itself.")
 
     var body: some View {
         Group {
@@ -175,12 +177,17 @@ struct StatusView: View {
         }
         .navigationTitle("Status")
         .toolbar {
-            if #available(macOS 26.1, *) {
+            #if compiler(>=6.4)
+                // .visibilityPriority arrives with the SDK that has macOS 26.1.
+                if #available(macOS 26.1, *) {
+                    ToolbarItem(placement: .primaryAction) { refreshButton }
+                        .visibilityPriority(.high)
+                } else {
+                    ToolbarItem(placement: .primaryAction) { refreshButton }
+                }
+            #else
                 ToolbarItem(placement: .primaryAction) { refreshButton }
-                    .visibilityPriority(.high)
-            } else {
-                ToolbarItem(placement: .primaryAction) { refreshButton }
-            }
+            #endif
         }
         .confirmationDialog(
             String(localized: "Block Steam client updates?"),
@@ -205,7 +212,7 @@ struct StatusView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text(
-                String(localized: "This will restore Steam itself to its original state but does not remove the support components used by NotProton.")
+                String(localized: "This will restore Steam itself to its original state but does not remove the support components used by NotNotProton.")
             )
         }
         .confirmationDialog(
@@ -223,7 +230,7 @@ struct StatusView: View {
             Text("CrossOver itself is not removed.")
         }
         .confirmationDialog(
-            String(localized: "Remove everything NotProton has created?"),
+            String(localized: "Remove everything NotNotProton has created?"),
             isPresented: asking(.removeEverything),
             titleVisibility: .visible
         ) {
@@ -234,31 +241,7 @@ struct StatusView: View {
         } message: {
             Text(Uninstall.confirmation())
         }
-        .confirmationDialog(
-            CrossOverLicense.notActivatedTitle,
-            isPresented: asking(.installUnlicensed),
-            titleVisibility: .visible
-        ) {
-            Button("Continue Anyway") {
-                Task { await status.installIntoSteam() }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text(
-                CrossOverLicense.notActivatedAdvice
-                    + String(localized: " NotProton can be deployed, but the CrossOver compatibility tool cannot be installed without a valid license.")
-            )
-        }
         .task { if status.snapshot == nil { await status.refresh() } }
-        .confirmationDialog(
-            CrossOverLicense.notActivatedTitle,
-            isPresented: asking(.toolUnlicensed),
-            titleVisibility: .visible
-        ) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(CrossOverLicense.notActivatedAdvice)
-        }
     }
 
     private func asking(_ confirmation: SystemStatus.Confirmation) -> Binding<Bool> {
@@ -348,11 +331,15 @@ struct StatusView: View {
             } footer: {
                 HStack {
                     Spacer()
-                    Button("Add CrossOver\u{2026}") { Task { await status.addCrossOver() } }
+                    Button("Add Wine or CrossOver\u{2026}") { Task { await status.addCrossOver() } }
                         .disabled(!status.isIdle)
-                        .help("Add a copy of CrossOver from another folder.")
+                        .help("Add a copy of Wine or CrossOver from another folder.")
                 }
             }
+
+            wineSection(snapshot)
+
+            graphicsSection
 
             componentsSection(snapshot.payload)
 
@@ -374,7 +361,7 @@ struct StatusView: View {
             )
             StatusRow(
                 title: String(localized: "Remove Everything"),
-                value: String(localized: "Remove NotProton and restore Steam to its original state."),
+                value: String(localized: "Remove NotNotProton and restore Steam to its original state."),
                 action: StatusAction(
                     label: String(localized: "Remove"),
                     role: .destructive,
@@ -395,7 +382,7 @@ struct StatusView: View {
         StatusAction(
             label: label,
             isProminent: prominent,
-            help: String(localized: "Install NotProton into Steam."),
+            help: String(localized: "Install NotNotProton into Steam."),
             isEnabled: status.canInstall
         ) {
             Task { await status.requestInstall() }
@@ -433,22 +420,22 @@ struct StatusView: View {
             }
             deploymentRow(.installed(version: version), payload: payload)
         case .newerInstalled:
-            StatusRow(title: "NotProton", value: String(localized: "A newer build is installed."), tone: .neutral,
-                      detail: String(localized: "Use the newer NotProton app to update or repair the installed files."))
+            StatusRow(title: "NotNotProton", value: String(localized: "A newer build is installed."), tone: .neutral,
+                      detail: String(localized: "Use the newer NotNotProton app to update or repair the installed files."))
         case .unavailable(let reason):
-            StatusRow(title: "NotProton", value: String(localized: "Could not check installed files."), tone: .warning, detail: reason)
+            StatusRow(title: "NotNotProton", value: String(localized: "Could not check installed files."), tone: .warning, detail: reason)
         case .update(let files):
-            StatusRow(title: "NotProton", value: String(localized: "Update available."), tone: .warning,
+            StatusRow(title: "NotNotProton", value: String(localized: "Update available."), tone: .warning,
                       detail: String(localized: "This app includes newer files than those installed for Steam."),
                       action: installAction(prominent: true, label: String(localized: "Update")))
                 .help(files.joined(separator: "\n"))
         case .repair(let files):
-            StatusRow(title: "NotProton", value: String(localized: "Installed files differ from this build."), tone: .warning,
+            StatusRow(title: "NotNotProton", value: String(localized: "Installed files differ from this build."), tone: .warning,
                       detail: String(localized: "Restore the files included with this app."),
                       action: installAction(prominent: true, label: String(localized: "Repair")))
                 .help(files.joined(separator: "\n"))
         case .unrecorded(let files):
-            StatusRow(title: "NotProton", value: String(localized: "Update available."), tone: .warning,
+            StatusRow(title: "NotNotProton", value: String(localized: "Update available."), tone: .warning,
                       detail: String(localized: "This app includes updated files for Steam."),
                       action: installAction(prominent: true, label: String(localized: "Update")))
                 .help(files.joined(separator: "\n"))
@@ -459,10 +446,10 @@ struct StatusView: View {
     private func deploymentRow(_ deployment: SteamDeployment, payload: PayloadState) -> some View {
         switch deployment {
         case .steamMissing:
-            StatusRow(title: "NotProton", value: String(localized: "Steam not found."), tone: .bad)
+            StatusRow(title: "NotNotProton", value: String(localized: "Steam not found."), tone: .bad)
         case .notInstalled:
             StatusRow(
-                title: "NotProton",
+                title: "NotNotProton",
                 value: String(localized: "Not installed."),
                 tone: .neutral,
                 action: installAction(prominent: true)
@@ -470,13 +457,13 @@ struct StatusView: View {
         case .installed(let version):
             if payload.isSteamComplete {
                 StatusRow(
-                    title: "NotProton",
+                    title: "NotNotProton",
                     value: String(localized: "Installed") + (version.map { " (\($0))" } ?? ""),
                     tone: .ok
                 )
             } else {
                 StatusRow(
-                    title: "NotProton",
+                    title: "NotNotProton",
                     value: String(localized: "Steam integration needs repair."),
                     tone: .warning,
                     detail: steamRepairDetail(payload),
@@ -485,17 +472,17 @@ struct StatusView: View {
             }
         case .outdated(_, let bundled):
             StatusRow(
-                title: "NotProton",
+                title: "NotNotProton",
                 value: String(localized: "Update available (\(bundled))."),
                 tone: .warning,
                 action: installAction(prominent: true)
             )
         case .foreign:
             StatusRow(
-                title: "NotProton",
+                title: "NotNotProton",
                 value: String(localized: "Another dylib is present."),
                 tone: .warning,
-                detail: String(localized: "Repair your Steam install before installing NotProton.")
+                detail: String(localized: "Repair your Steam install before installing NotNotProton.")
             )
         }
     }
@@ -505,11 +492,11 @@ struct StatusView: View {
             title: String(localized: "Block Steam client updates"),
             value: blocked
                 ? String(localized: "The Steam client will not update itself.")
-                : String(localized: "A Steam client update may break NotProton."),
+                : String(localized: "A Steam client update may break NotNotProton."),
             toggle: blockUpdates
         )
         .disabled(!status.isIdle)
-        .help("Steam client updates may break NotProton.")
+        .help("Steam client updates may break NotNotProton.")
     }
 
     private var blockUpdates: Binding<Bool> {
@@ -570,6 +557,118 @@ struct StatusView: View {
         }
     }
 
+    @ViewBuilder
+    private func wineSection(_ snapshot: StatusSnapshot) -> some View {
+        let missing = WineBuilds.missing(from: snapshot.crossOver)
+        let newest = WineBuilds.newest(missing)
+        let older = missing.filter { build in !newest.contains(build) }
+        if !missing.isEmpty {
+            Section {
+                ForEach(newest) { build in wineRow(build) }
+                if !older.isEmpty {
+                    DisclosureGroup {
+                        ForEach(older) { build in wineRow(build) }
+                    } label: {
+                        Text("Older builds")
+                    }
+                }
+            } header: {
+                Text("Wine Builds")
+            } footer: {
+                Text("Downloads from Gcenx's and Barrel's releases, then unpacks into ~/Applications.")
+            }
+        }
+    }
+
+    private func wineRow(_ build: WineBuildDownload) -> some View {
+        StatusRow(
+            title: build.title,
+            value: wineValue(build),
+            tone: wineTone(build),
+            action: StatusAction(
+                label: String(localized: "Download"),
+                isEnabled: status.canInstall && !wine.isBusy
+            ) {
+                Task {
+                    if await wine.download(build) != nil { await status.refresh() }
+                }
+            }
+        )
+    }
+
+    private var graphicsSection: some View {
+        Section {
+            ForEach(GraphicsBackends.layers) { layer in
+                StatusRow(
+                    title: layer.title,
+                    value: layerValue(layer),
+                    tone: layerTone(layer),
+                    detail: layer.note,
+                    action: StatusAction(
+                        label: String(localized: "Download"),
+                        isEnabled: !layers.isBusy
+                    ) {
+                        Task { _ = await layers.install(layer) }
+                    }
+                )
+            }
+            StatusRow(
+                title: "D3DMetal",
+                value: String(localized: "Direct3D 11/12 through Metal."),
+                detail: String(localized: "Apple's, so it comes from your own Game Porting Toolkit download."),
+                action: StatusAction(label: String(localized: "Open Page")) {
+                    NSWorkspace.shared.open(
+                        URL(string: "https://developer.apple.com/games/game-porting-toolkit/")!)
+                }
+            )
+        } header: {
+            Text("Graphics Backends")
+        } footer: {
+            Text("Installed into ~/Library/Application Support/notproton/plugins, then chosen per game in Steam.")
+        }
+    }
+
+    private func layerValue(_ layer: GraphicsLayer) -> String {
+        if GraphicsBackends.installed().contains(layer.id) { return String(localized: "Installed") }
+        switch layers.states[layer.id] {
+        case .downloading(let fraction):
+            return String(localized: "Downloading") + " \(Int(fraction * 100))%"
+        case .unpacking:
+            return String(localized: "Unpacking")
+        case .failed(let message):
+            return message
+        case nil:
+            return layer.summary
+        }
+    }
+
+    private func layerTone(_ layer: GraphicsLayer) -> StatusTone {
+        if case .failed = layers.states[layer.id] { return .bad }
+        if GraphicsBackends.installed().contains(layer.id) { return .ok }
+        return .neutral
+    }
+
+    private func wineValue(_ build: WineBuildDownload) -> String? {
+        switch wine.states[build.id] {
+        case .downloading(let fraction):
+            String(localized: "Downloading") + " \(Int(fraction * 100))%"
+        case .unpacking:
+            String(localized: "Unpacking")
+        case .failed(let message):
+            message
+        case nil:
+            nil
+        }
+    }
+
+    private func wineTone(_ build: WineBuildDownload) -> StatusTone? {
+        switch wine.states[build.id] {
+        case .downloading, .unpacking: .info
+        case .failed: .bad
+        case nil: nil
+        }
+    }
+
     private func crossOverValue(_ row: CrossOverRow) -> String {
         if let version = row.unsupportedVersion {
             return String(localized: "Version \(version) not supported (supported: \(SupportedRunners.versionList))")
@@ -577,7 +676,7 @@ struct StatusView: View {
         let build = String(localized: "Build \(SupportedRunners.displayVersion(forID: row.buildID))")
         switch row.copy {
         case .ready: return build
-        case .none: return build + (row.licensed == false ? String(localized: ", not set up or activated") : String(localized: ", not set up"))
+        case .none: return build + String(localized: ", not set up")
         case .unpatched: return build + String(localized: ", not patched")
         case .damaged: return build + String(localized: ", copy damaged")
         case .unsupported: return build + String(localized: ", not supported")
@@ -587,7 +686,7 @@ struct StatusView: View {
     private func crossOverTone(_ row: CrossOverRow) -> StatusTone {
         if row.unsupportedVersion != nil { return .neutral }
         switch row.copy {
-        case .none: return row.licensed == false ? .warning : .neutral
+        case .none: return .neutral
         case .ready: return .ok
         case .unpatched, .damaged, .unsupported: return .warning
         }
@@ -599,13 +698,12 @@ struct StatusView: View {
             let names = tools.filter { $0.build == row.buildID }.map(\.display)
             lines.append(contentsOf: names)
         }
-        if row.copy == .none, row.licensed == false { lines.append("\(String(localized: "Open CrossOver to activate it.")) \(CrossOverLicense.trialUnsupported)") }
         if let install = row.install {
             var path = install.bundle.path(percentEncoded: false)
             if path.count > 1, path.hasSuffix("/") { path.removeLast() }
             lines.append(path)
         } else if row.copy != .unsupported {
-            lines.append(String(localized: "CrossOver app not found."))
+            lines.append(String(localized: "\(SupportedRunners.productName(forID: row.buildID)) app not found."))
         }
         return lines.isEmpty ? nil : lines.joined(separator: "\n")
     }
@@ -690,7 +788,7 @@ struct StatusView: View {
         StatusAction(
             label: label,
             role: .destructive,
-            help: String(localized: "Delete NotProton's copy of this build."),
+            help: String(localized: "Delete NotNotProton's copy of this build."),
             isEnabled: status.canInstall
         ) {
             status.requestBuildRemoval(build)
@@ -716,11 +814,11 @@ struct StatusView: View {
     @ViewBuilder
     private func componentsSection(_ payload: PayloadState) -> some View {
         if let problem = payload.manifestProblem {
-            Section("NotProton Components") {
+            Section("NotNotProton Components") {
                 StatusRow(title: String(localized: "Components"), value: String(localized: "Component list unreadable."), tone: .bad, detail: problem)
             }
         } else if payload.isComplete {
-            Section("NotProton Components") {
+            Section("NotNotProton Components") {
                 StatusRow(
                     title: String(localized: "Components"), value: String(localized: "Ready."), tone: .ok,
                     trailing: status.bridgeCopyBytes > 0
@@ -728,11 +826,11 @@ struct StatusView: View {
                 )
             }
         } else if payload.isEmpty {
-            Section("NotProton Components") {
+            Section("NotNotProton Components") {
                 StatusRow(title: String(localized: "Components"), value: String(localized: "Not yet deployed."), tone: .neutral)
             }
         } else {
-            Section("NotProton Components") {
+            Section("NotNotProton Components") {
                 if !payload.missing.isEmpty {
                     let names = payload.missing.map(\.path).joined(separator: ", ")
                     StatusRow(

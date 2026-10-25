@@ -18,17 +18,10 @@ struct CrossOverRowTests {
         installed: [RunnerBuild] = [],
         damaged: [String] = [],
         orphaned: [String] = [],
-        unpatched: [String] = [],
-        unlicensed: Set<String> = []
+        unpatched: [String] = []
     ) -> [CrossOverRow] {
-        var licenses: [String: CrossOverLicense.Status] = [:]
-        for install in installs {
-            licenses[install.id] = CrossOverLicense.Status(
-                licensed: !unlicensed.contains(install.id), detail: "", diagnostic: "test"
-            )
-        }
-        return CrossOverRow.rows(
-            installs: installs, licenses: licenses, installed: installed,
+        CrossOverRow.rows(
+            installs: installs, installed: installed,
             damaged: damaged, orphaned: orphaned, unpatched: unpatched
         )
     }
@@ -45,15 +38,14 @@ struct CrossOverRowTests {
         #expect(made.allSatisfy { $0.copy == .ready && $0.canSetUp })
     }
 
-    @Test("An app with no copy yet can be set up, and its license shows on the row")
+    @Test("An app with no copy yet can be set up")
     func appWithoutCopy() {
         let release = install("CrossOver", Self.release)
 
-        let made = rows([release], unlicensed: [release.id])
+        let made = rows([release])
 
         #expect(made.count == 1)
         #expect(made[0].copy == .none)
-        #expect(made[0].licensed == false)
         #expect(made[0].canSetUp)
     }
 

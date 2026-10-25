@@ -47,6 +47,8 @@ struct RunnerBuild: Sendable, Equatable, Identifiable {
     var flavorName: String { flavor?.uppercased() ?? "Rosetta" }
 
     var displayVersion: String { "\(releaseVersion) \(flavorName)" }
+
+    var productName: String { bundleVersion.hasPrefix("winehq-") ? "WineHQ" : "CrossOver" }
 }
 
 // The version of CrossOver offered in China has different hashes but is identical in the ways that matter
@@ -92,7 +94,10 @@ enum SupportedRunners {
 
     // First entry is what windows-only games get when Steam has no mapping.
     static let toolPreference = [
-        legacyToolName, "notproton-fex", "notproton-fex-rosetta", "notproton-preview",
+        legacyToolName, "notproton-winehq", "notproton-winehq-staging", "notproton-winehq-11.18",
+        "notproton-winehq-staging-11.18", "notproton-winehq-11.17", "notproton-winehq-staging-11.17",
+        "notproton-winehq-11.16", "notproton-winehq-staging-11.16", "notproton-winehq-staging-11.9",
+        "notproton-fex", "notproton-fex-rosetta", "notproton-preview",
         "notproton-fex-41069", "notproton-fex-rosetta-41069", "notproton-preview-41069",
         "notproton-fex-41073", "notproton-fex-rosetta-41073", "notproton-preview-41073", "notproton-26.3",
     ]
@@ -116,14 +121,15 @@ enum SupportedRunners {
         case .build(let id): id
         case .nobody: nil
         }
-        let served = all.filter { installed.contains($0.id) }.flatMap { build in
-            build.tools.enumerated().map { index, tool in
+        let served: [InstalledTool] = all.filter { installed.contains($0.id) }.flatMap {
+            (build: RunnerBuild) -> [InstalledTool] in
+            build.tools.enumerated().map { (index: Int, tool: CompatTool) -> InstalledTool in
                 let name = build.id == holder && index == 0 ? legacyToolName : tool.name
                 return InstalledTool(
                     tool: CompatTool(name: name, flavor: tool.flavor, display: tool.display), build: build.id
                 )
             }
-        }.filter { $0.tool.flavor != .fex || fexAvailable || kept.contains($0.name) }
+        }.filter { $0.tool.flavor != CompatTool.Flavor.fex || fexAvailable || kept.contains($0.name) }
         func rank(_ tool: InstalledTool) -> Int {
             toolPreference.firstIndex(of: tool.name) ?? toolPreference.count
         }
@@ -133,6 +139,166 @@ enum SupportedRunners {
     }
 
     static let all: [RunnerBuild] = [
+        // The WineHQ build the bridge components are compiled against, see
+        // bridge/setup-wine-tree.sh.
+        RunnerBuild(
+            bundleVersion: "winehq-11.15",
+            releaseVersion: "11.15",
+            flavor: nil,
+            loaderSHA256: "8aa25e55f28a0634a7df04c02dd719d4bc20de645cf42b9ba7d0e3b7d8f66a80",
+            cleanNtdll: [
+                .x86_64Windows: "682181234a55f5b7eed5b2ffa691fbdef1b488734337ef67ea7b5ce17adf43a2",
+                .i386Windows: "49396e7ad804a5345b1b968d02fdb6697ddbb7428e61e20e62806c50c37589d1",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "08a825e8236e79c909fae3934ca5e8a195a344d06f8affb6e13cdf1bd9ffa783",
+                .i386Windows: "88f9a1d16dd7127100eab902156390ec2a5ec67770cfddd3fd3f1237c9965309",
+            ],
+            tools: [
+                CompatTool(name: "notproton-winehq", flavor: .rosetta, display: "WineHQ 11.15"),
+            ]
+        ),
+        // The staging patchset makes some games behave differently, so it is offered beside
+        // the plain build rather than replacing it.
+        RunnerBuild(
+            bundleVersion: "winehq-staging-11.15",
+            releaseVersion: "11.15",
+            flavor: nil,
+            loaderSHA256: "11e31e52cab7be161463bdbcccfc4ab28779efd11f91c025c8ea7fa415c52d08",
+            cleanNtdll: [
+                .x86_64Windows: "96d3f673061240ef6e4917c7ed8b17fbdddea1cdfc3676518718f671a41ca159",
+                .i386Windows: "576b62f87941d676f7c0bc40759b3657e5251602c74b46d6c97dd15574163a14",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "52d55201940536b6701da181c1d41a6c7fac216ad6895221b6c862ce25c9abe4",
+                .i386Windows: "47014cb52aff8aead47698f622f660c7ea01ba99cd8511cb74902c4000149875",
+            ],
+            tools: [
+                CompatTool(name: "notproton-winehq-staging", flavor: .rosetta, display: "WineHQ Staging 11.15"),
+            ]
+        ),
+        RunnerBuild(
+            bundleVersion: "winehq-11.18",
+            releaseVersion: "11.18",
+            flavor: nil,
+            loaderSHA256: "52bde7105a2e501a23125cbddc92bf7c5920bccba29215402d272b9c028a14d3",
+            cleanNtdll: [
+                .x86_64Windows: "958922348a508d88c8bfb7e61380e1970a09c6c19a254ce06c8a2deb17238c6f",
+                .i386Windows: "cb21df042349cdc79f69db7d3d5633526ce9650dd454224f9c36559055871593",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "0cc01b531f08efabdb2714eb67afa10f46ec289ef0b8054e4958e977881a313e",
+                .i386Windows: "d554add44778b93e7edb9115346f92c3ab96b3878b078163c5b08967db3f18e8",
+            ],
+            tools: [
+                CompatTool(name: "notproton-winehq-11.18", flavor: .rosetta, display: "WineHQ 11.18"),
+            ]
+        ),
+        RunnerBuild(
+            bundleVersion: "winehq-staging-11.18",
+            releaseVersion: "11.18",
+            flavor: nil,
+            loaderSHA256: "6a3bfec3d4e3e96c37474f8288594b8ddc600ca4afd697d82d9d517a899eaae2",
+            cleanNtdll: [
+                .x86_64Windows: "f3d2dbc3764d3e37eeeeeac923d09c47745e8c7b190324e940d551e0b733b1ab",
+                .i386Windows: "57b278521f341e6e2280e5dafd3095c6f39b1857fb18ec3d9a610a53a42e46fe",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "b6eb0b5ba4d489542a0e34b836e761a7843f60f22455b211a58696f3a55ee51a",
+                .i386Windows: "bc4dc54e969022a895cc4702b8e6c3a86b6e795c09d97bf7841b07b52b2965d5",
+            ],
+            tools: [
+                CompatTool(name: "notproton-winehq-staging-11.18", flavor: .rosetta, display: "WineHQ Staging 11.18"),
+            ]
+        ),
+        RunnerBuild(
+            bundleVersion: "winehq-11.17",
+            releaseVersion: "11.17",
+            flavor: nil,
+            loaderSHA256: "51d9ba9d2cb4368b688bd2a434baeae23ac155aa4c66bcb2d03a3d032d90d522",
+            cleanNtdll: [
+                .x86_64Windows: "3ac13a12c10b98564d34f70bcf2974d45c93b746edafe3c6f9f5e5b5b730b59a",
+                .i386Windows: "fa07753bb65d179be41e269267e856b40173b3f8c0d720be0d6e4e19ad525aac",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "e8dd5003f969207fea5ba85a886d9b02ad0ceaf49ee8570308bb6f061361cf43",
+                .i386Windows: "a3a759a7e9b57b81f8d953a1dd54a4b8b8471b913c9abe129b5af380b2af23d2",
+            ],
+            tools: [
+                CompatTool(name: "notproton-winehq-11.17", flavor: .rosetta, display: "WineHQ 11.17"),
+            ]
+        ),
+        RunnerBuild(
+            bundleVersion: "winehq-staging-11.17",
+            releaseVersion: "11.17",
+            flavor: nil,
+            loaderSHA256: "517531c5183749f6db57030fd1d55c2f684ef1db31b67bb717cea06680c2c132",
+            cleanNtdll: [
+                .x86_64Windows: "d4c82dcb553e45b506629cb6176147878ffe2ca600066ac105b1d278f9cf51c2",
+                .i386Windows: "9c104e98ff2745a04b8ffc9d4381b98d96a8147f4ef27be4389d935f14ba97e4",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "2935b9755504d902a7dc3a79ce51e193477a63d7824356e8c83a25936c42571c",
+                .i386Windows: "5a08f433a815b8cca3268b287b1db916acdf2d209d4211ad003368aba643e3f2",
+            ],
+            tools: [
+                CompatTool(
+                    name: "notproton-winehq-staging-11.17", flavor: .rosetta, display: "WineHQ Staging 11.17"),
+            ]
+        ),
+        RunnerBuild(
+            bundleVersion: "winehq-11.16",
+            releaseVersion: "11.16",
+            flavor: nil,
+            loaderSHA256: "dbe30d3bec9813df8fd0f3cfcffefa1002fc253ddad5368e64bdd49a36c5731c",
+            cleanNtdll: [
+                .x86_64Windows: "9d22b10563da76a3576be303c1b7e2c5e370b1585fa220020ffac5a0287fe66b",
+                .i386Windows: "f9bc63caffebfc4d15a500a19134d30f22faab127f7b669e40100718d5e4aa95",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "457825503f1758cc7edadddba087592335aa8af1b5fab6c9cda0ce2bd0d7bd74",
+                .i386Windows: "896572c57bf4ee07e31b5d93714b189bc2f63e905b7d0ab8b41090ed45b0758f",
+            ],
+            tools: [
+                CompatTool(name: "notproton-winehq-11.16", flavor: .rosetta, display: "WineHQ 11.16"),
+            ]
+        ),
+        RunnerBuild(
+            bundleVersion: "winehq-staging-11.16",
+            releaseVersion: "11.16",
+            flavor: nil,
+            loaderSHA256: "88c015f4db73798bfadd1b890d6f0f4d2931ef0cb2c8e7be795c765a818ddc1e",
+            cleanNtdll: [
+                .x86_64Windows: "dbd0bd11fcb942c274fe4785ed60c142111c8dd67918a685bfc5661dd829f1bb",
+                .i386Windows: "8f044975346a4f08344250995da0e81540672f012580106e88f561169d438609",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "e319a7960246b0daa09213a946a4a3e17b52c0f779e7f6310d88118cb3b94dbe",
+                .i386Windows: "1ccf822ef645c30a2e6ffcf87b8668d8725505383bcd0765d65aec80d49138f0",
+            ],
+            tools: [
+                CompatTool(
+                    name: "notproton-winehq-staging-11.16", flavor: .rosetta, display: "WineHQ Staging 11.16"),
+            ]
+        ),
+        // The oldest build offered, for games that regressed in a later Wine.
+        RunnerBuild(
+            bundleVersion: "winehq-staging-11.9",
+            releaseVersion: "11.9",
+            flavor: nil,
+            loaderSHA256: "fee931b8973c4e0949e5366d38e6ed40628984e5e3014d73202f04044b380fab",
+            cleanNtdll: [
+                .x86_64Windows: "29013c4c110c7e910660c0a90bb7757f5783d4d556ae1c91ae85f46b20a10faa",
+                .i386Windows: "96e1ebb5a3427bd2d493c17e460a4f006778c8b59dcc47b076da98e519b86aa0",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "ed4420a54405ce3dbc85193d4156c4a3a6922f5ea76897560ca2a14e36338029",
+                .i386Windows: "9488cec5bb4d4e8b30dc62e790c3c0094fefb40ce2adef13ddc9b2912f98f8a3",
+            ],
+            tools: [
+                CompatTool(name: "notproton-winehq-staging-11.9", flavor: .rosetta, display: "WineHQ Staging 11.9"),
+            ]
+        ),
         RunnerBuild(
             bundleVersion: "26.3.0.39832",
             releaseVersion: "26.3",
@@ -275,6 +441,26 @@ enum SupportedRunners {
                 CompatTool(name: "notproton-fex-rosetta-41073", flavor: .rosetta, display: "CrossOver 2026 10 15-ARM64 - Rosetta"),
             ]
         ),
+        // CrossOver 26.3 built from CodeWeavers' open source tree by Barrel's CI, so a free
+        // build of the engine without owning CrossOver.
+        RunnerBuild(
+            bundleVersion: "wine-cx-26.3.0",
+            releaseVersion: "26.3",
+            flavor: nil,
+            loaderSHA256: "1dd3bfd9c969bbd52d8851a9c8cf8c8240fb5940003f51629c4a3d45187b748d",
+            cleanNtdll: [
+                .x86_64Windows: "e7644f0aa9176208538d026b2b318fe13dfbf2ec8e45a16a7afc5c0c7da8614b",
+                .i386Windows: "9363a9511c1eb8078ca9d061b9b0b265d82251383a8cce30c58bae67c70ed6e0",
+            ],
+            patchedNtdll: [
+                .x86_64Windows: "19cffb58ec9d0a9d6723aed44a792a18b7d01a98813a8b4f5eef00562b4b4c7e",
+                .i386Windows: "8038882b47f12119a4b6c40e2fade94177bb88bee5ac0d2d623dd1e6381e5757",
+            ],
+            tools: [
+                CompatTool(
+                    name: "notproton-cx-foss", flavor: .rosetta, display: "CrossOver 26.3 (FOSS)"),
+            ]
+        ),
     ]
 
     static func build(loaderSHA256 hash: String) -> RunnerBuild? {
@@ -287,6 +473,10 @@ enum SupportedRunners {
 
     static func displayVersion(forID id: String) -> String {
         build(id: id)?.displayVersion ?? id
+    }
+
+    static func productName(forID id: String) -> String {
+        build(id: id)?.productName ?? "CrossOver"
     }
 
     static var versionList: String {

@@ -589,7 +589,7 @@ sigdb-install:
 	cp -f signatures/macos.arm64/*.json "$(SUPPORT_DIR)/signatures/macos.arm64/"
 	@echo "==> Installed: $(SUPPORT_DIR)/signatures/macos.arm64"
 
-LAUNCHABLE_BUNDLES := $(HOME)/Desktop/NotProton.app /Applications/NotProton.app
+LAUNCHABLE_BUNDLES := $(HOME)/Desktop/NotNotProton.app /Applications/NotNotProton.app
 
 FONT_FILES := --include='*/' --include='*.ttf' --include='*.ttc' --exclude='*'
 
@@ -658,10 +658,17 @@ app-payload: $(TARGET) $(OVERLAY_SHIM) $(ICONMAKER) $(APPINFO)
 	echo "$$stamp" > "$(APP_PAYLOAD)/build-time"
 	@echo "==> Staged app payload in $(APP_PAYLOAD)"
 
-APP_BUNDLE  := $(OUT_DIR)/NotProton.app
-APP_BUNDLE_PAYLOAD := $(APP_BUNDLE)/Contents/Resources/NotProtonApp_NotProtonApp.bundle/Contents/Resources/payload
-APP_ZIP     := $(OUT_DIR)/NotProton.zip
+APP_BUNDLE  := $(OUT_DIR)/NotNotProton.app
+# The resource bundle is flat in recent toolchains and nested under Contents/Resources
+# in older ones, so the payload is found rather than assumed.
+APP_BUNDLE_PAYLOAD = $(shell find "$(CURDIR)/$(APP_BUNDLE)/Contents/Resources/NotProtonApp_NotProtonApp.bundle" \
+	-maxdepth 3 -type d -name payload 2>/dev/null | head -1)
+APP_ZIP     := $(OUT_DIR)/NotNotProton.zip
 APP_VERSION := $(shell sed -n 's/^\#define NOTPROTON_VERSION "\(.*\)"/\1/p' dylib/version.h)
+# String(localized:) reads .lproj tables, and SwiftPM copies the catalogue into the
+# bundle instead of compiling it, so the tables are compiled here when the toolchain
+# has not done it.
+LOCALIZABLE := app/Sources/NotProtonApp/Resources/Localization/Localizable.xcstrings
 
 APP_SIGN_ID ?= -
 
@@ -677,26 +684,33 @@ prefix-command-install:
 
 ICONGEN  := $(OUT_DIR)/icongen
 ICON_DOC := $(OUT_DIR)/NotProton.icon
+ICON_FLAT := $(OUT_DIR)/NotProton.png
 ICON_DIR := $(OUT_DIR)/icon
 ICON_CAR := $(ICON_DIR)/Assets.car
+ICON_ICNS := $(ICON_DIR)/NotProton.icns
 
-icon: $(ICON_CAR)
+icon: $(ICON_ICNS)
 
 $(ICONGEN): helpers/icon.swift
 	@mkdir -p $(OUT_DIR)
 	swiftc -O -o $@ $<
 	@echo "==> Built $@"
 
-$(ICON_CAR): $(ICONGEN)
+# actool turns the .icon into Assets.car. When an Xcode's asset compiler declines
+# the document it writes no catalogue at all, so the .icns is built here instead
+# and the bundle ships that.
+$(ICON_ICNS): $(ICONGEN) $(ICONMAKER)
 	rm -rf "$(ICON_DOC)" "$(ICON_DIR)"
 	$(ICONGEN) "$(ICON_DOC)"
 	@mkdir -p "$(ICON_DIR)"
-	xcrun actool "$(ICON_DOC)" --compile "$(ICON_DIR)" --platform macosx \
+	@xcrun actool "$(ICON_DOC)" --compile "$(ICON_DIR)" --platform macosx \
 		--minimum-deployment-target 15.0 --app-icon NotProton \
-		--output-partial-info-plist "$(ICON_DIR)/partial.plist" >/dev/null
-	@echo "==> Built $@"
+		--output-partial-info-plist "$(ICON_DIR)/partial.plist" >/dev/null 2>&1 || true
+	@if [ -f "$(ICON_CAR)" ]; then echo "==> Built $(ICON_CAR)"; \
+	else echo "==> actool produced no catalogue, building $(ICON_ICNS)"; \
+		$(ICONMAKER) "$(ICON_FLAT)" "$(ICON_ICNS)"; fi
 
-app: app-payload $(ICON_CAR)
+app: app-payload $(ICON_ICNS)
 	swift build --package-path app -c release
 	rm -rf "$(APP_BUNDLE)"
 	@mkdir -p "$(APP_BUNDLE)/Contents/MacOS" "$(APP_BUNDLE)/Contents/Resources"
@@ -717,13 +731,23 @@ app: app-payload $(ICON_CAR)
 		"$(APP_BUNDLE)/Contents/MacOS/NotProtonApp"
 	cp -R "$$(swift build --package-path app -c release --show-bin-path)/NotProtonApp_NotProtonApp.bundle" \
 		"$(APP_BUNDLE)/Contents/Resources/"
-	cp -R "$(APP_BUNDLE)/Contents/Resources/NotProtonApp_NotProtonApp.bundle/Contents/Resources/"*.lproj \
+	@bin="$$(swift build --package-path app -c release --show-bin-path)"; \
+	if ls "$$bin/NotProtonApp_NotProtonApp.bundle/"*.lproj >/dev/null 2>&1; then \
+		echo "==> the toolchain compiled the string catalog"; \
+	else \
+		echo "==> compiling the string catalog"; \
+		xcrun xcstringstool compile "$(LOCALIZABLE)" \
+			--output-directory "$$bin/NotProtonApp_NotProtonApp.bundle"; \
+	fi
+	cp -R "$$(swift build --package-path app -c release --show-bin-path)/NotProtonApp_NotProtonApp.bundle/"*.lproj \
 		"$(APP_BUNDLE)/Contents/Resources/"
-	cp "$(ICON_DIR)/Assets.car" "$(ICON_DIR)/NotProton.icns" \
+	cp "$(ICON_ICNS)" "$(APP_BUNDLE)/Contents/Resources/"
+	@if [ -f "$(ICON_CAR)" ]; then cp "$(ICON_CAR)" "$(APP_BUNDLE)/Contents/Resources/"; fi
+	cp LICENSE LICENSE.fonts LICENSE.lsteamclient LICENSE.steam-shim NOTICE THIRD_PARTY_NOTICES.md \
 		"$(APP_BUNDLE)/Contents/Resources/"
 	@missing=$$(cd "$(APP_PAYLOAD)" && find . -type f ! -name '.DS_Store' | sed 's|^\./||' \
 		| while read -r rel; do \
-			[ -s "$(CURDIR)/$(APP_BUNDLE_PAYLOAD)/$$rel" ] || echo "$$rel"; \
+			[ -s "$(APP_BUNDLE_PAYLOAD)/$$rel" ] || echo "$$rel"; \
 		done); \
 	if [ -n "$$missing" ]; then \
 		echo "==> the bundle is missing staged payload, so the app would ship without it:" >&2; \

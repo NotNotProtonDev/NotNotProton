@@ -4,6 +4,10 @@ NotProton licensing
 NotProton has a complex licensing situation. The bulk of the project is licensed
 under GPLV3.
 
+This file explains the situation. THIRD_PARTY_NOTICES.md is the per-component
+inventory: what is shipped, what is patched in place on your machine, and what is
+only downloaded, with a license and source link for each.
+
 The parts that are modifications of Valve code are licensed under the license
 that Valve released them under.
 

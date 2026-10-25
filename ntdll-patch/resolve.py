@@ -333,28 +333,64 @@ def resolve_amd64(pe):
         else:
             break
     hook = body[k]
-    slot = amd64_load_path(pe, body, hook.address)
+    slot = amd64_load_path(pe, body, hook)
     return {'build_module': bm, 'alloc_module': am, 'wm': wm, 'load_path': slot,
             'hookRVA': hook.address, 'stolen': hook.bytes.hex(), 'insn': f"{hook.mnemonic} {hook.op_str}"}
 
 
+def amd64_frame(body, hook):
+    """Offset of the frame pointer from rsp at the hook, or None if rbp is not a frame.
+
+    Wine 11.16 and later spill build_module's arguments relative to `lea rbp, [rsp + X]`
+    instead of rsp, so a slot named [rbp - N] is really [rsp + X - N]. CrossOver and
+    earlier Wine spill straight to [rsp + N] and have no frame pointer at all.
+    """
+    frame = None
+    for i in body:
+        if i.address >= hook.address:
+            break
+        if i.mnemonic == 'lea' and re.fullmatch(r'rbp, \[rsp \+ 0x[0-9a-f]+\]', i.op_str):
+            frame = int(i.op_str.rsplit('+', 1)[1].strip().rstrip(']'), 16)
+        elif i.mnemonic in ('push', 'pop') or (
+                i.mnemonic in ('sub', 'add') and i.op_str.startswith('rsp,')):
+            # rsp moves, so a frame pointer taken earlier stops measuring the hook
+            frame = None
+        elif i.mnemonic == 'mov' and i.op_str.startswith('rbp,'):
+            frame = None
+    return frame
+
+
+def amd64_slot(op, frame):
+    """rsp offset of a qword frame write, or None if it is not a frame write."""
+    m = re.fullmatch(r'qword ptr \[rsp \+ (0x[0-9a-f]+)\]', op)
+    if m:
+        return int(m.group(1), 16)
+    m = re.fullmatch(r'qword ptr \[rbp ([+-]) (0x[0-9a-f]+)\]', op)
+    if m and frame is not None:
+        delta = int(m.group(2), 16) * (1 if m.group(1) == '+' else -1)
+        return frame + delta
+    return None
+
+
 def amd64_load_path(pe, body, hook):
     """Frame slot holding the load_path argument, read as [rsp+N] at the hook."""
+    frame = amd64_frame(body, hook)
+
     # Neither build keeps the argument in rcx. One spills it to the stack right away,
     # the other stashes it in a callee-saved register and reuses that a few instructions
     # later.
     src, slot, stored_at = 'rcx', None, None
     for i in body:
-        if i.address >= hook:
+        if i.address >= hook.address:
             break
         if i.mnemonic != 'mov' or ',' not in i.op_str:
             continue
         dst, rhs = (x.strip() for x in i.op_str.split(',', 1))
         if rhs != src:
             continue
-        if dst.startswith('qword ptr [rsp'):
-            slot = 0 if '+' not in dst else int(dst.split('+')[1].strip().rstrip(']'), 16)
-            stored_at = i.address
+        found = amd64_slot(dst, frame)
+        if found is not None:
+            slot, stored_at = found, i.address
             break
         if re.fullmatch(r'r[a-z0-9]+', dst):
             src = dst
@@ -364,12 +400,13 @@ def amd64_load_path(pe, body, hook):
     # The shim reads the slot off rsp, so anything moving rsp in between would shift it, and
     # a second write to it would mean the slot is reused for something else.
     for i in body:
-        if not stored_at < i.address < hook:
+        if not stored_at < i.address < hook.address:
             continue
         if i.mnemonic in ('push', 'pop') or (i.mnemonic in ('sub', 'add') and i.op_str.startswith('rsp,')):
             raise SystemExit(f"{pe.path}: rsp moves at {i.address:#x}, load_path slot not rsp-stable")
-        if i.mnemonic == 'mov' and i.op_str.startswith(f'qword ptr [rsp + {slot:#x}],'):
-            raise SystemExit(f"{pe.path}: load_path slot rewritten at {i.address:#x}")
+        if i.mnemonic == 'mov' and ',' in i.op_str:
+            if amd64_slot(i.op_str.split(',', 1)[0].strip(), frame) == slot:
+                raise SystemExit(f"{pe.path}: load_path slot rewritten at {i.address:#x}")
     return slot
 
 

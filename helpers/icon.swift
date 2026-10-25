@@ -263,3 +263,9 @@ let document: [String: Any] = [
 try JSONSerialization
     .data(withJSONObject: document, options: [.prettyPrinted, .sortedKeys])
     .write(to: root.appendingPathComponent("icon.json"))
+
+// Flattened copy, for the .icns fallback the Makefile builds when actool declines.
+try write(
+    render(Element.allCases),
+    to: root.deletingLastPathComponent().appendingPathComponent("NotProton.png")
+)

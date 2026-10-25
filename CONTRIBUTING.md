@@ -1,4 +1,18 @@
-# Contributing to NotProton
+# Contributing to NotNotProton
+
+This is a fork of [NotProton](https://github.com/NotProtonNot/NotProton) with one purpose: run on free
+Wine builds instead of requiring CrossOver. Everything else is upstream's work, and upstream's policy
+below still describes how to contribute here. The one point that no longer applies is the note under
+"policies" that support for runtimes other than CrossOver is out of scope, since that is the reason
+this fork exists.
+
+Two things matter more here than upstream's list does. Keep the change small enough to explain in a
+sentence, because every line has to be reconciled the next time upstream moves. And do not rename
+internals: the module, the bundle identifier, `notproton.dylib`, the support folder and the
+compatibility tool IDs are written into existing installs and Steam's per-game settings, so renaming
+them breaks every game already set up.
+
+## NotProton's policy
 
 Thank you for considering contributing code to NotProton. NotProton is a large undertaking. I'm happy to do it. Contributions can reduce the load and can make it easier to figure out what people want.
 

@@ -565,7 +565,7 @@ struct SteamInstallerTests {
 
         let error = try #require(throws: StepFailure.self) { try install(fixture, calls: calls, stopped: true) }
 
-        #expect(error.detail.contains("newer NotProton"))
+        #expect(error.detail.contains("newer NotNotProton"))
         #expect(try Data(contentsOf: fixture.deployedDylib) == before)
         #expect(try DeploymentContent.readBuild(at: record) == newer)
         #expect(calls.registrations.isEmpty)

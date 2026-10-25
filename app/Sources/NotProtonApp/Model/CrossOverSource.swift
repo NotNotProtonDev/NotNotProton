@@ -94,7 +94,9 @@ enum CrossOverSource {
         for root in searchRoots {
             let entries = (try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)) ?? []
             for entry in entries where entry.pathExtension == "app" {
-                guard entry.deletingPathExtension().lastPathComponent.hasPrefix("CrossOver") else { continue }
+                // "Wine Stable/Devel/Staging" are Gcenx's WineHQ builds, which carry the same tree.
+                let name = entry.deletingPathExtension().lastPathComponent
+                guard name.hasPrefix("CrossOver") || name.hasPrefix("Wine") else { continue }
                 consider(entry, isManual: false)
             }
         }

@@ -15,7 +15,6 @@ struct CrossOverRow: Identifiable, Equatable {
     let buildID: String
     let install: CrossOverInstall?
     let copy: Copy
-    let licensed: Bool?
     let unsupportedVersion: String?
 
     var id: String { install?.id ?? buildID }
@@ -23,7 +22,7 @@ struct CrossOverRow: Identifiable, Equatable {
 
     var title: String {
         if let install { return install.name }
-        return "CrossOver \(SupportedRunners.displayVersion(forID: buildID))"
+        return "\(SupportedRunners.productName(forID: buildID)) \(SupportedRunners.displayVersion(forID: buildID))"
     }
 
     var canSetUp: Bool { install != nil && unsupportedVersion == nil }
@@ -31,12 +30,11 @@ struct CrossOverRow: Identifiable, Equatable {
 
     static func == (a: CrossOverRow, b: CrossOverRow) -> Bool {
         a.buildID == b.buildID && a.install?.id == b.install?.id && a.copy == b.copy
-            && a.licensed == b.licensed && a.unsupportedVersion == b.unsupportedVersion
+            && a.unsupportedVersion == b.unsupportedVersion
     }
 
     static func rows(
         installs: [CrossOverInstall],
-        licenses: [String: CrossOverLicense.Status],
         installed: [RunnerBuild],
         damaged: [String],
         orphaned: [String],
@@ -58,11 +56,11 @@ struct CrossOverRow: Identifiable, Equatable {
                 guard seen.insert(build.id).inserted else { continue }
                 rows.append(CrossOverRow(
                     buildID: build.id, install: install, copy: copy(of: build.id),
-                    licensed: licenses[install.id]?.licensed, unsupportedVersion: nil
+                    unsupportedVersion: nil
                 ))
             case .unsupportedBuild(let version):
                 rows.append(CrossOverRow(
-                    buildID: "", install: install, copy: .none, licensed: nil, unsupportedVersion: version
+                    buildID: "", install: install, copy: .none, unsupportedVersion: version
                 ))
             case .unreadable:
                 continue
@@ -72,12 +70,12 @@ struct CrossOverRow: Identifiable, Equatable {
         let copies = installed.map(\.id) + damaged
         for build in copies where seen.insert(build).inserted {
             rows.append(CrossOverRow(
-                buildID: build, install: nil, copy: copy(of: build), licensed: nil, unsupportedVersion: nil
+                buildID: build, install: nil, copy: copy(of: build), unsupportedVersion: nil
             ))
         }
         for build in orphaned where seen.insert(build).inserted {
             rows.append(CrossOverRow(
-                buildID: build, install: nil, copy: .unsupported, licensed: nil, unsupportedVersion: nil
+                buildID: build, install: nil, copy: .unsupported, unsupportedVersion: nil
             ))
         }
         return rows

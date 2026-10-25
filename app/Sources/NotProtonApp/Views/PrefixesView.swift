@@ -20,7 +20,7 @@ struct PrefixesView: View {
                     String(localized: "No Prefixes"),
                     systemImage: "externaldrive",
                     description: Text(
-                        String(localized: "A prefix appears here once a Windows game has been launched through NotProton.")
+                        String(localized: "A prefix appears here once a Windows game has been launched through NotNotProton.")
                     )
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -52,12 +52,17 @@ struct PrefixesView: View {
             }
         }
         .toolbar {
-            if #available(macOS 26.1, *) {
+            #if compiler(>=6.4)
+                // .visibilityPriority arrives with the SDK that has macOS 26.1.
+                if #available(macOS 26.1, *) {
+                    ToolbarItemGroup(placement: .primaryAction) { strip }
+                        .visibilityPriority(.high)
+                } else {
+                    ToolbarItemGroup(placement: .primaryAction) { strip }
+                }
+            #else
                 ToolbarItemGroup(placement: .primaryAction) { strip }
-                    .visibilityPriority(.high)
-            } else {
-                ToolbarItemGroup(placement: .primaryAction) { strip }
-            }
+            #endif
         }
         .task { await model.load() }
         .confirmationDialog(

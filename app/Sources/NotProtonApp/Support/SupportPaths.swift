@@ -52,7 +52,12 @@ enum SupportPaths {
     }
 
     static func crossOverRoot(inBundle bundle: URL) -> URL {
-        bundle.appending(path: "Contents/SharedSupport/CrossOver")
+        let crossOver = bundle.appending(path: "Contents/SharedSupport/CrossOver")
+        // Gcenx's WineHQ builds keep the same tree at this path instead.
+        let wine = bundle.appending(path: "Contents/Resources/wine")
+        if FileManager.default.fileExists(atPath: crossOver.path(percentEncoded: false)) { return crossOver }
+        if FileManager.default.fileExists(atPath: wine.path(percentEncoded: false)) { return wine }
+        return crossOver
     }
 
     static func clonedRoot(forBuild build: String, runners: URL = SupportPaths.runners) -> URL {
