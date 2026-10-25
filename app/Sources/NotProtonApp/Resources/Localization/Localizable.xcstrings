@@ -81,6 +81,22 @@
         }
       }
     },
+    "%@ conflicts with %@." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ è in conflitto con %2$@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 与 %2$@ 冲突。"
+          }
+        }
+      }
+    },
     "%@ could not be copied out of the prefix. The prefix has been left as it was and nothing has been lost. Check free space and permissions, then try again." : {
       "localizations" : {
         "it" : {
@@ -748,6 +764,22 @@
         }
       }
     },
+    "%lld selected: %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld selezionati: %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已选择 %1$lld 个：%2$@"
+          }
+        }
+      }
+    },
     ", copy damaged" : {
       "localizations" : {
         "it" : {
@@ -1292,6 +1324,22 @@
         }
       }
     },
+    "Ascending" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crescente"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "升序"
+          }
+        }
+      }
+    },
     "Back Up %lld Prefixes" : {
       "localizations" : {
         "it" : {
@@ -1660,6 +1708,22 @@
         }
       }
     },
+    "Category" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categoria"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "类别"
+          }
+        }
+      }
+    },
     "Check for Updates…" : {
       "localizations" : {
         "it" : {
@@ -1772,6 +1836,22 @@
         }
       }
     },
+    "Choose at least one package." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli almeno un pacchetto."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请至少选择一个软件包。"
+          }
+        }
+      }
+    },
     "Choose…" : {
       "localizations" : {
         "it" : {
@@ -1832,6 +1912,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "复制 CrossOver"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiudi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
           }
         }
       }
@@ -2287,6 +2383,22 @@
         }
       }
     },
+    "DLLs" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DLL"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DLL"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "it" : {
@@ -2623,6 +2735,22 @@
         }
       }
     },
+    "Descending" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrescente"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "降序"
+          }
+        }
+      }
+    },
     "Detaching from Steam" : {
       "localizations" : {
         "it" : {
@@ -2783,38 +2911,6 @@
         }
       }
     },
-    "Enter at least one verb, like vcrun2022." : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inserisci almeno un verbo, ad esempio vcrun2022."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请至少输入一个组件，例如 vcrun2022。"
-          }
-        }
-      }
-    },
-    "Enter the Winetricks verbs to install in %@, separated by spaces." : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inserisci i verbi di Winetricks da installare in %@, separati da spazi."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "输入要安装到“%@”中的 Winetricks 组件，用空格分隔。"
-          }
-        }
-      }
-    },
     "Extracting" : {
       "localizations" : {
         "it" : {
@@ -2927,6 +3023,22 @@
         }
       }
     },
+    "Fonts" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caratteri"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "字体"
+          }
+        }
+      }
+    },
     "Game" : {
       "localizations" : {
         "it" : {
@@ -2939,6 +3051,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "游戏"
+          }
+        }
+      }
+    },
+    "General" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generali"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常规"
           }
         }
       }
@@ -3167,6 +3295,22 @@
         }
       }
     },
+    "Installing…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installazione…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在安装…"
+          }
+        }
+      }
+    },
     "It will replace the DLLs used by CrossOver with ones that match your compatibility tool." : {
       "localizations" : {
         "it" : {
@@ -3327,6 +3471,22 @@
         }
       }
     },
+    "List Winetricks packages" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elenca i pacchetti di Winetricks"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "列出 Winetricks 软件包"
+          }
+        }
+      }
+    },
     "List the backups again and update their sizes." : {
       "localizations" : {
         "it" : {
@@ -3403,6 +3563,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在查找游戏容器"
+          }
+        }
+      }
+    },
+    "Manual download" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download manuale"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手动下载"
           }
         }
       }
@@ -3499,6 +3675,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "更多操作，%@"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名称"
           }
         }
       }
@@ -4050,6 +4242,22 @@
         }
       }
     },
+    "Order" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordine"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顺序"
+          }
+        }
+      }
+    },
     "Overlay shim" : {
       "localizations" : {
         "it" : {
@@ -4222,6 +4430,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "独占空间"
+          }
+        }
+      }
+    },
+    "Publisher" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autore"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发行商"
           }
         }
       }
@@ -4994,6 +5218,22 @@
         }
       }
     },
+    "Retry" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprova"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
     "Reveal Log in Finder" : {
       "localizations" : {
         "it" : {
@@ -5122,6 +5362,22 @@
         }
       }
     },
+    "Search" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索"
+          }
+        }
+      }
+    },
     "Select a copy of CrossOver." : {
       "localizations" : {
         "it" : {
@@ -5234,6 +5490,22 @@
         }
       }
     },
+    "Settings" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        }
+      }
+    },
     "Setup" : {
       "localizations" : {
         "it" : {
@@ -5246,6 +5518,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "安装与设置"
+          }
+        }
+      }
+    },
+    "Show Log" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra log"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示日志"
           }
         }
       }
@@ -5342,6 +5630,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "下载的文件存在问题。请检查是否有新版 NotNotProton。"
+          }
+        }
+      }
+    },
+    "Sort By" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordina per"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "排序方式"
+          }
+        }
+      }
+    },
+    "Sort by %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordina per %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按%@排序"
           }
         }
       }
@@ -6405,6 +6725,22 @@
         }
       }
     },
+    "This package needs its files downloaded by hand, which NotProton cannot do." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo pacchetto richiede file da scaricare a mano, cosa che NotProton non può fare."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此软件包的文件需要手动下载，NotProton 无法代劳。"
+          }
+        }
+      }
+    },
     "This tool is intended to repair a prefix after switching between Rosetta/FEX CrossOver." : {
       "localizations" : {
         "it" : {
@@ -6741,8 +7077,27 @@
         }
       }
     },
+    "WineD3D" : {
+      "shouldTranslate" : false
+    },
     "Winetricks" : {
       "shouldTranslate" : false
+    },
+    "Winetricks keeps running. The Prefixes window shows when it is done." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winetricks continua a funzionare. La finestra Prefissi mostra quando ha finito."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winetricks 会继续运行。完成后会在“游戏容器”窗口中显示。"
+          }
+        }
+      }
     },
     "Winetricks ran %@ in %@." : {
       "localizations" : {
@@ -6778,6 +7133,22 @@
     },
     "Winetricks…" : {
       "shouldTranslate" : false
+    },
+    "Year" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anno"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年份"
+          }
+        }
+      }
     },
     "You will not lose saves by using this tool." : {
       "localizations" : {
@@ -7082,9 +7453,6 @@
           }
         }
       }
-    },
-    "vcrun2022 corefonts" : {
-      "shouldTranslate" : false
     }
   },
   "version" : "1.0"
