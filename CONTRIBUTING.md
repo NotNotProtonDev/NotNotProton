@@ -12,6 +12,14 @@ internals: the module, the bundle identifier, `notproton.dylib`, the support fol
 compatibility tool IDs are written into existing installs and Steam's per-game settings, so renaming
 them breaks every game already set up.
 
+Merging upstream needs one setting, because `Localizable.xcstrings` is a single sorted JSON object and
+Git's line merge reports a conflict whenever both sides only add keys:
+
+    git config merge.xcstrings.driver 'python3 helpers/merge-xcstrings.py %O %A %B'
+
+When the same string really was edited on both sides it names the key and leaves that file to be
+resolved by hand, since a JSON object has nowhere to put conflict markers.
+
 ## NotProton's policy
 
 Thank you for considering contributing code to NotProton. NotProton is a large undertaking. I'm happy to do it. Contributions can reduce the load and can make it easier to figure out what people want.
